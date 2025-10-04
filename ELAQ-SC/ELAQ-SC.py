@@ -1,4 +1,5 @@
 import os
+import re
 import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin, urlparse
@@ -14,11 +15,6 @@ print("1. Save HTML only")
 print("2. Save HTML + JS + CSS")
 choice = input("Option: ").strip()
 
-folder = "site_data"
-os.makedirs(folder, exist_ok=True)
-
-print("\nFetching site data...")
-
 try:
     r = requests.get(url)
     r.raise_for_status()
@@ -26,15 +22,21 @@ except Exception as e:
     print(f"Failed to fetch URL: {e}")
     exit()
 
+soup = BeautifulSoup(r.text, "html.parser")
+
+site_title = soup.title.string if soup.title else "site_data"
+folder_name = re.sub(r'[\\/*?:"<>|]', "_", site_title)
+folder = os.path.join(os.getcwd(), folder_name)
+os.makedirs(folder, exist_ok=True)
+
+print(f"\nFolder created: {folder}")
+
 html_path = os.path.join(folder, "index.html")
 with open(html_path, "w", encoding="utf-8") as f:
     f.write(r.text)
-
 print("HTML saved.")
 
 if choice == "2":
-    soup = BeautifulSoup(r.text, "html.parser")
-
     def download_file(file_url, subfolder):
         file_name = os.path.basename(urlparse(file_url).path)
         if not file_name:
@@ -61,7 +63,6 @@ if choice == "2":
             file_url = urljoin(url, src)
             download_file(file_url, "js")
 
-    print("\nAll assets saved in 'site_data' folder.")
+    print("\nAll assets saved in the folder.")
 
 print("\nDone! A SMALL PROJECT BY ELAQ")
-
