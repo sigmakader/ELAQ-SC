@@ -7,22 +7,18 @@ print("--------------------------------------------------")
 print("         ----- A SMALL PROJECT BY ELAQ -----")
 print("--------------------------------------------------\n")
 
-# Ask for URL
 url = input("Enter the URL of the site: ").strip()
 
-# Ask what to save
 print("\nChoose an option:")
 print("1. Save HTML only")
 print("2. Save HTML + JS + CSS")
 choice = input("Option: ").strip()
 
-# Folder to store downloaded files
 folder = "site_data"
 os.makedirs(folder, exist_ok=True)
 
 print("\nFetching site data...")
 
-# Get HTML
 try:
     r = requests.get(url)
     r.raise_for_status()
@@ -53,14 +49,12 @@ if choice == "2":
         except Exception as e:
             print(f"Failed to download {file_url}: {e}")
 
-    # Download CSS files
     for link in soup.find_all("link", {"rel": "stylesheet"}):
         href = link.get("href")
         if href:
             file_url = urljoin(url, href)
             download_file(file_url, "css")
 
-    # Download JS files
     for script in soup.find_all("script", {"src": True}):
         src = script.get("src")
         if src:
@@ -70,3 +64,4 @@ if choice == "2":
     print("\nAll assets saved in 'site_data' folder.")
 
 print("\nDone! A SMALL PROJECT BY ELAQ")
+
